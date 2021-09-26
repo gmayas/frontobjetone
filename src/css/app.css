@@ -18,3 +18,12 @@
 .demo-navlist-container {
   max-width: 15rem;
 }
+
+.demo-table-container {
+  text-align: center;
+  height: 27rem;
+}
+
+.demo-table-textarea {
+  max-width: 100%;
+}

@@ -8,22 +8,22 @@
 /*
  * Your customer ViewModel code goes here
  */
-define(["require", "exports", "knockout", 
-        "ojs/ojbootstrap", "ojs/ojarraydataprovider", "ojs/ojbufferingdataprovider", 
-        "ojs/ojkeyset", "ojs/ojconverter-number", 
-        "text!data/departmentData.json", 
-        "ojs/ojknockout", "ojs/ojinputtext", "ojs/ojinputnumber", "ojs/ojlabel", "ojs/ojvalidationgroup", "ojs/ojformlayout", "ojs/ojtoolbar", "ojs/ojmessages", "ojs/ojtable"],
-function (require, exports, ko, 
-         ojbootstrap_1, ArrayDataProvider, BufferingDataProvider, 
-         ojkeyset_1, NumberConverter, 
-         deptData) {
+define(["require", "exports", "knockout",
+  "ojs/ojbootstrap", "ojs/ojarraydataprovider", "ojs/ojbufferingdataprovider",
+  "ojs/ojkeyset", "ojs/ojconverter-number",
+  "text!data/departmentData.json",
+  "ojs/ojknockout", "ojs/ojinputtext", "ojs/ojinputnumber", "ojs/ojlabel", "ojs/ojvalidationgroup", "ojs/ojformlayout", "ojs/ojtoolbar", "ojs/ojmessages", "ojs/ojtable"],
+  function (require, exports, ko,
+    ojbootstrap_1, ArrayDataProvider, BufferingDataProvider,
+    ojkeyset_1, NumberConverter,
+    deptData) {
     function TableCrudViewModel() {
       this.connected = () => {
         document.title = "Table CRUD";
         // Implement further logic if needed
       };
       //
-     // console.log('deptData: ', deptData)
+      // console.log('deptData: ', deptData)
 
       this.deptArray = JSON.parse(deptData);
       console.log('this.deptArray: ', this.deptArray)

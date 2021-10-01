@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Users</title>
+</head>
+
+<body>
+  <div class="oj-hybrid-padding">
+    <h1>Users</h1>
+      <oj-table id='table' 
+                aria-label="Users Table" 
+                class='table-users-container'
+                data='[[self.dataprovider]]' 
+                columns='[{"headerText": "User Id", "field": "id_user"},
+                          {"headerText": "Name", "field": "name_user"},
+                          {"headerText": "Email", "field": "email_user"},
+                          {"headerText": "Password", "field": "password_user"}]'>
+      </oj-table>
+  </div>
+</body>
+</html>

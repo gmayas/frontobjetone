@@ -11,15 +11,13 @@
 <body>
   <div class="oj-hybrid-padding">
     <h1>Users</h1>
-      <oj-table id='table' 
-                aria-label="Users Table" 
-                class='table-users-container'
-                data='[[self.dataprovider]]' 
-                columns='[{"headerText": "User Id", "field": "id_user"},
-                          {"headerText": "Name", "field": "name_user"},
-                          {"headerText": "Email", "field": "email_user"},
-                          {"headerText": "Password", "field": "password_user"}]'>
+      <oj-table id='table' aria-label="Users Table" class='table-users-container' 
+                data='[[self.dataprovider]]' columns='[{"headerText": "User Id", "field": "id_user"},
+                {"headerText": "Name", "field": "name_user"},
+                {"headerText": "Email", "field": "email_user"},
+                {"headerText": "Password", "field": "password_user"}]'>
       </oj-table>
   </div>
 </body>
+
 </html>

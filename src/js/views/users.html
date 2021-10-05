@@ -34,15 +34,12 @@
     <div id="componentDemoContent" style="width: 1px; min-width: 100%;">
       <oj-table id='table' 
                 aria-label='Users Table' 
-                data='[[self.dataprovider]]'
+                data='[[dataprovider]]'
                 selection-mode='{"row": "multiple", "column": "multiple"}' 
                 dnd='{"reorder": {"columns": "enabled"}}'
                 scroll-policy='loadMoreOnScroll' 
                 scroll-policy-options='{"fetchSize": 10}' 
-                columns='[{"headerText": "User Id", "field": "id_user"},
-                          {"headerText": "Name", "field": "name_user"},
-                          {"headerText": "Email", "field": "email_user"},
-                          {"headerText": "Password", "field": "password_user"}]' 
+                columns='[[tableColumns]]'
                 class='table-users-container oj-bg-body'>
       </oj-table>
     </div>

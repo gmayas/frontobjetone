@@ -32,10 +32,64 @@
   <h1>Users</h1>
   <div id="sampleDemo" style="" class="demo-padding demo-container">
     <div id="componentDemoContent" style="width: 1px; min-width: 100%;">
+      <div class='oj-flex-bar'>
+                <oj-dialog id="modalDialog1" dialog-title="Modal Dialog">
+                     <div slot="body">
+                           This is the add new dialog content.
+
+                           <oj-form-layout id="myform">
+                                                <oj-input-text id="f1" label-hint="[[labelHint1]]"
+                                                               placeholder='{{placeholder()? "placeholder text": null}}' 
+                                                               value='{{inputTextValue}}'
+                                                               disabled="[[disableFormControls]]"
+                                                               messages-custom="{{messages}}" required="[[required]]"
+                                                               help-hints.source="[[source]]"
+                                                               help-hints.definition="[[definition]]"
+                                                               help.instruction="[[instruction]]"></oj-input-text>
+                                                  <oj-input-text id="f1" label-hint="[[labelHint2]]"
+                                                               placeholder='{{placeholder()? "placeholder text": null}}' 
+                                                               value='{{inputTextValue}}'
+                                                               disabled="[[disableFormControls]]"
+                                                               messages-custom="{{messages}}" required="[[required]]"
+                                                               help-hints.source="[[source]]"
+                                                               help-hints.definition="[[definition]]"
+                                                               help.instruction="[[instruction]]"></oj-input-text>
+                                                  <oj-input-password id="f2" label-hint="[[labelHint3]]"
+                                                               placeholder='{{placeholder()? "placeholder text": null}}'  
+                                                               value='{{inputPasswordValue}}'
+                                                               disabled="[[disableFormControls]]" 
+                                                               messages-custom="{{messages}}" required="[[required]]"
+                                                               help-hints.source="[[source]]"
+                                                               help-hints.definition="[[definition]]"
+                                                               help.instruction="[[instruction]]"
+                                                               mask-icon="visible"></oj-input-password>
+                            </oj-form-layout>
+                    </div>
+                    <div slot="footer">
+                          <oj-button id="okButton" on-oj-action="[[close]]">OK</oj-button>
+                    </div>
+              </oj-dialog> 
+              <div class='oj-flex-bar-start oj-sm-padding-1x-start'>
+                <oj-button id= "addNew" class="button-purple"
+                           on-oj-action='[[addNewDialog]]'>
+                           <span slot='endIcon' class="oj-ux-ico-avatar"></span>
+                           Add new
+                </oj-button>
+              </div>
+              <div class='oj-flex-bar-end oj-sm-padding-1x-start'>
+                <oj-input-text id="filter" 
+                               class="oj-form-control-max-width-md" 
+                               label-hint="Filter" label-edge="inside"
+                               placeholder="Type to filter" 
+                               on-raw-value-changed="[[handleValueChanged]]" 
+                              value="{{filter}}" 
+                              clear-icon="always">
+                  </oj-input-text>
+              </div>
+      </div>
       <oj-table id='table' 
                 aria-label='Users Table' 
                 data='[[dataprovider]]'
-                selection-mode='{"row": "multiple", "column": "multiple"}' 
                 dnd='{"reorder": {"columns": "enabled"}}'
                 scroll-policy='loadMoreOnScroll' 
                 scroll-policy-options='{"fetchSize": 10}' 

@@ -1,7 +1,8 @@
 
 define(["services/users.service", "../accUtils", "require", "exports", "knockout", "ojs/ojcore", "ojs/ojbootstrap",
   "ojs/ojarraydataprovider", "ojs/ojbufferingdataprovider", "ojs/ojlistdataproviderview", "ojs/ojdataprovider", "ojs/ojanimation", 
-  "ojs/ojtable", "ojs/ojknockout", "ojs/ojinputtext", "ojs/ojbutton", "ojs/ojdialog", "ojs/ojformlayout", "ojs/ojlabelvalue"],
+  "ojs/ojtable", "ojs/ojknockout", "ojs/ojinputtext", "ojs/ojbutton", "ojs/ojdialog", "ojs/ojformlayout", "ojs/ojlabelvalue", 
+  "ojs/ojinputsearch", "ojs/ojvalidationgroup", "ojs/ojrefresher", "ojs/ojpagingcontrol"],
   function (usersServices, accUtils, require, exports, ko, oj, ojbootstrap_1,
     ArrayDataProvider, BufferingDataProvider, ListDataProviderView, ojdataprovider_1, AnimationUtils) {
     function UsersViewModel() {
@@ -16,13 +17,29 @@ define(["services/users.service", "../accUtils", "require", "exports", "knockout
       this.valueLength = ko.observable("short");
       this.formState = ko.observable("enabled");
       this.formControls = ko.observableArray([]);
-
+      this.stylesBooleans = ko.observableArray([]);
+      this.groupValid = ko.observable();
+      this.inputIdUser = ko.observable();
+      this.inputNameUser = ko.observable();
+      this.inputEmailUser = ko.observable();
+      this.inputPassword = ko.observable();
+      this.required = ko.observable(true);
+      this.messageNameUser = ko.observable([{}]);
+      this.messageEmailUser = ko.observable([{}]);
+      this.messagePasswordUser = ko.observable([{}]);
+      this.disableFormControls = {
+        idUser: true,
+        NameUser: false,
+        EmailUser: false,
+        PasswordUser: false
+      };
+      this.actionButton = {
+        label: 'Add user', 
+        chroming:'danger',
+        style: "button-green" //null  
+      }
       // 
       self.userArray = ko.observableArray([]);
-      /*self.dataprovider = new ArrayDataProvider(self.userArray, {
-        keyAttributes: "id_user",
-        implicitSort: [{ attribute: "id_user", direction: "descending" }]
-      });*/
       self.dataprovider = ko.computed(() => {
         let filterCriterion = null;
         if (this.filter() && this.filter() != "") {
@@ -33,13 +50,53 @@ define(["services/users.service", "../accUtils", "require", "exports", "knockout
         const arrayDataProvider = new ArrayDataProvider(self.userArray, { keyAttributes: "id_user", implicitSort: [{ attribute: "id_user", direction: "descending" }] });
         return new ListDataProviderView(arrayDataProvider, { filterCriterion: filterCriterion });
       }, this);
-
-      // Functions
-      const usersData = async () => {
+      //
+      //
+      // Función que retorna la informacion de los usuarios (lista)
+      const getUsers = async () => {
         let response = await usersServices.getUsers();
         let dataReturn = await response.json();
         self.userArray(dataReturn.data);
       }
+
+      // Función que retorna la informacion de creacion usuario 
+      const createUser = async (bodyIn) => {
+        try {
+            //Create user
+            let response = await usersServices.createUser(bodyIn);
+            let dataReturn = await response.json();
+            getUsers();
+            this.filter(bodyIn.name_user);
+            //$("#table").ojTable("refresh");
+            //document.getElementById('table').refresh();
+        } catch (e) {
+            console.log('Error respose: ', e)
+       }
+      }
+
+      // Función que retorna la informacion de modificación usuario 
+      // Solo mofica el password del suario
+      const modifyPassword = async (id_user, bodyIn) => {
+          try {
+            //Modify user
+            let response = await usersServices.modifyPassword(id_user, bodyIn);
+            let dataReturn = await response.json();
+          } catch (e) {      
+            console.log('Error respose: ', e)
+        }
+      }
+
+      // Función asincrona para eliminar la informacion completa del usuario
+      const deleteUser = async () => {
+          try {
+               //Delete user
+               let response = await usersServices.deleteUsers(this.delUserSel.id_user);
+               let dataReturn = await response.json();
+          } catch (e) {
+                 console.log('Error respose: ', e)
+        }
+      }
+     
       //
       this.handleValueChanged = () => {
         this.filter(document.getElementById("filter").rawValue);
@@ -96,13 +153,82 @@ define(["services/users.service", "../accUtils", "require", "exports", "knockout
       { "headerText": "Name", renderer: this.highlightingCellRenderer },
       { "headerText": "Email", renderer: this.highlightingCellRenderer },
       { "headerText": "Password", renderer: this.highlightingCellRenderer }];
-      //   
+      //  
+      this.newUserData = () => {
+        this.inputIdUser(0);
+        this.inputNameUser(null);
+        this.inputEmailUser(null);
+        this.inputPassword(null);
+      };
+      
       this.addNewDialog = (event) =>{
+        this.newUserData();
         document.getElementById("modalDialog1").open();
       };
       //
-      this.close = (event) => {
+      this.cancelUserDialog = (event) => {
         document.getElementById("modalDialog1").close();
+        this.newUserData();
+      };
+
+      this.valueForm = ko.computed(() => {
+        let dataVal = ((!this.inputNameUser()
+                        || !this.inputEmailUser()
+                        || !this.inputPassword()         
+                        ) || this.groupValid() === "invalidShown")
+        return dataVal;
+      });
+
+      this.validateEmail = (email) => {
+        if (/^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i.test(email)) {
+          return true;
+        } else {
+          return false;
+        }
+      };
+
+      this.okUserDialog = (event) => {
+        console.log('this.valueForm:', this.valueForm())
+        console.log('this.groupValid():', this.groupValid())
+        const error = [{ summary: "summary", detail: "Is required", severity: "error" }];  
+        const warningEmail = [{ summary: "summary", detail: "Basic email format: user@email.com", severity: "warning" }];
+        //const info = [{ summary: "summary", detail: "detail", severity: "info" }];
+        //const confirmation = [{ summary: "summary", detail: "detail", severity: "confirmation" }];
+        const newData = {
+          id_user: this.inputIdUser(),
+          name_user: this.inputNameUser(),
+          email_user: this.inputEmailUser(),
+          password_user: this.inputPassword()
+        }; 
+        if (!this.valueForm()) {
+          console.log('newData:', newData)
+          console.log('!this.validateEmail(newData.email_user):', !this.validateEmail(newData.email_user))
+          if (!this.validateEmail(newData.email_user)){
+              this.messageEmailUser(warningEmail); 
+          } else {
+            //createUser, modifyPassword, deleteUser
+            if (newData.id_user == 0) {
+              createUser(newData);
+            } else {
+              modifyPassword(newData.id_user, newData);
+            }
+            this.newUserData();
+            document.getElementById("modalDialog1").close();
+          }
+        } else {
+           if (!this.inputNameUser()) {
+              console.log('!this.inputNameUser(): ', !this.inputNameUser())
+              this.messageNameUser(error);
+           };                     
+           if (!this.inputEmailUser()){
+              console.log('!this.inputEmailUser(): ', !this.inputEmailUser())
+              this.messageEmailUser(error);
+           };
+           if (!this.inputEmailUser()) {
+              console.log('!this.inputEmailUser(): ', !this.inputEmailUser())
+              this.messagePasswordUser(error);
+           };
+        }
       };
       //
       this.labelEdge.subscribe(function (newVal) {
@@ -116,8 +242,6 @@ define(["services/users.service", "../accUtils", "require", "exports", "knockout
         }
        }, this);
       //
-
-      //
       this.labelPrefix = ko.computed(() => {
         const startOrTopLabelEdge = this.labelEdge() === "start" || this.labelEdge() === "top";
         const labelShort = this.labelWrapTruncateNo() === "no";
@@ -129,89 +253,24 @@ define(["services/users.service", "../accUtils", "require", "exports", "knockout
             "really really really really really really superlong label for ");
       });
       //
-      this.labelHint1 = ko.computed(() => {
-        return this.labelPrefix() + "input text";
+      this.labelId = ko.computed(() => {
+        return this.labelPrefix() + "Id User";
       });
       //
-      this.labelHint2 = ko.computed(() => {
-        return this.labelPrefix() + "input email";
+      this.labelName = ko.computed(() => {
+        return this.labelPrefix() + "Name User";
       });
       //
-      this.labelHint3 = ko.computed(() => {
-        return this.labelPrefix() + "input password";
-      });
-      // 
-      this.placeholder = ko.computed(() => {
-        return this.booleans.indexOf("placeholder") != -1;
-      });
-      // 
-      this.disableFormControls = ko.computed(() => {
-        if (this.formControlDisabledState() === "yes") {
-            return true;
-        }
-        return false;
+      this.labelEmail = ko.computed(() => {
+        return this.labelPrefix() + "Email User";
       });
       //
-      this.inputTextValue = ko.computed(() => {
-        let shortText = "text";
-        return this.valueLength() === "short"
-            ? shortText
-            : this.valueLength() === "long"
-                ? shortText + longTextSuffix
-                : null;
+      this.labelPassword = ko.computed(() => {
+        return this.labelPrefix() + "Password User";
       });
       //
-      this.inputPasswordValue = ko.computed(() => {
-        let shortText = "text";
-        return this.valueLength() === "short"
-            ? shortText
-            : this.valueLength() === "long"
-                ? shortText + longTextSuffix
-                : null;
-      });
-      //
-      this.messages = ko.computed(() => {
-        let msgs = [];
-        if (this.formState() == "enabled") {
-            if (this.formControls.indexOf("error") > -1) {
-                msgs.push(_errorMsg);
-            }
-            if (this.formControls.indexOf("warning") > -1) {
-                msgs.push(_warningMsg);
-            }
-            if (this.formControls.indexOf("info") > -1) {
-                msgs.push(_infoMsg);
-            }
-            if (this.formControls.indexOf("confirmation") > -1) {
-                msgs.push(_confirmationMsg);
-            }
-        }
-        return msgs;
-      });
-      //
-      this.required = ko.computed(() => {
-        return this.booleans.indexOf("required") != -1;
-      });
-      //
-      this.source = ko.computed(() => {
-        return this.booleans.indexOf("source") != -1
-            ? "https://www.oracle.com"
-            : "";
-      });
-      //
-      this.definition = ko.computed(() => {
-        return this.booleans.indexOf("definition") != -1
-            ? "Custom help definition"
-            : "";
-      });
-      //
-      this.instruction = ko.computed(() => {
-        return this.booleans.indexOf("instruction") != -1
-            ? "Assistive help instruction"
-            : "";
-      });
       //      
-      usersData();
+      getUsers();
       console.log('self:', self)
       //
       this.connected = () => {

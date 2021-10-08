@@ -35,7 +35,7 @@
       <div class='oj-flex-bar'>
                 <oj-dialog id="modalDialog1">
                      <div slot="header">
-                        <h1 id="dialogTitleId" class="oj-dialog-title">Add user 
+                        <h1 id="dialogTitleId" class="oj-dialog-title">Data user 
                            <span role="img" class="oj-ux-ico-avatar"></span>
                         </h1>
                      </div>
@@ -46,18 +46,18 @@
                                                               label-hint="[[labelId]]"
                                                                placeholder='{{"Id User"}}' 
                                                                value='{{inputIdUser}}'
-                                                               disabled="[[disableFormControls.idUser]]"></oj-input-text>
+                                                               disabled="[[disableIdUser]]"></oj-input-text>
                                                 <oj-input-text id="nameUser" label-hint="[[labelName]]"
                                                                placeholder='{{"Name User"}}' 
                                                                value='{{inputNameUser}}'
-                                                               disabled="[[disableFormControls.nameUser]]"
+                                                               disabled="[[disableNameUser]]"
                                                                messages-custom="{{messageNameUser}}" 
                                                                required="[[required]]">
                                                                <div slot="end" class="oj-text-field-start-end-icon oj-ux-ico-avatar" role="img"></div></oj-input-text>
                                                   <oj-input-text id="emailUser" label-hint="[[labelEmail]]"
                                                                placeholder='{{"user@email.com"}}' 
                                                                value='{{inputEmailUser}}'
-                                                               disabled="[[disableFormControls.emailUser]]"
+                                                               disabled="[[disableEmailUser]]"
                                                                messages-custom="{{messageEmailUser}}" 
                                                                required="[[required]]">
                                                                <div slot="end" class="oj-text-field-start-end-icon oj-ux-ico-email" role="img"></div>
@@ -65,19 +65,59 @@
                                                   <oj-input-password id="passwordUser" label-hint="[[labelPassword]]"
                                                                placeholder='{{"Password User"}}'  
                                                                value='{{inputPassword}}'
-                                                               disabled="[[disableFormControls.emailUser]]" 
+                                                               disabled="[[disablePasswordUser]]" 
                                                                messages-custom="{{messagePasswordUser}}" 
                                                                required="[[required]]"
                                                                mask-icon="visible"></oj-input-password>
                             </oj-form-layout>
                       </oj-validation-group>
+                      <oj-dialog id="innerDialog" modality="modal">
+                        <div slot="header">
+                        <h1 id="dialogTitleId" class="oj-dialog-title h1-red">Delete user 
+                           <span role="img" class="oj-ux-ico-avatar"></span>
+                        </h1>
+                     </div>
+                          <div slot="body">
+                              <div class= "oj-flex oj-sm-flex-items-initial">
+                                <div class="oj-flex-item oj-sm-padding-2x-horizontal">
+                                      <span class="oj-icon-color-danger oj-ux-ico-error-s oj-ux-icon-size-6x" 
+                                             role="img" aria-label="error"></span>
+                                </div>
+                                <div class="oj-flex-item oj-sm-padding-2x-horizontal">
+                                  <h1 id="dialogTitleId" class="oj-dialog-title h1-red">Are you completely sure to delete this user? 
+                                     <span role="img" class="oj-ux-ico-avatar"></span>
+                                  </h1>
+                                </div>
+                              </div>
+                          </div>
+                          <div slot="footer" class="oj-dialog-footer-separator">
+                            <oj-button id="delButton" 
+                                     :class='{{actionStyleDel}}' 
+                                     on-oj-action="[[delUserDialog2]]" 
+                                     label="[[actionLabelDel]]" 
+                                     chroming='{{actionButtonChroming}}'
+                                     disabled="[[actionDisabledDel]]" >
+                                     <span slot='endIcon' class="oj-ux-ico-avatar"></span>
+                          </oj-button>
+                              <oj-button id="okButton2" class="button-red" on-oj-action="[[handleOKClose2]]">Cancel <span slot='endIcon' class="oj-ux-ico-cancel"></span></oj-button>
+                          </div>
+                      </oj-dialog>
                     </div>
                     <div slot="footer" class="oj-dialog-footer-separator">
                           <oj-button id="okButton" 
-                                     :class='{{actionButton.style}}' 
+                                     :class='{{actionStyleCU}}' 
                                      on-oj-action="[[okUserDialog]]" 
-                                     label="[[actionButton.label]]" 
-                                     chroming='{{actionButton.chroming}}'>
+                                     label="[[actionLabelCU]]" 
+                                     chroming='{{actionButtonChroming}}'
+                                     disabled="[[actionDisabledCU]]">
+                                     <span slot='endIcon' class="oj-ux-ico-avatar"></span>
+                          </oj-button>
+                          <oj-button id="delButton" 
+                                     :class='{{actionStyleDel}}' 
+                                     on-oj-action="[[delUserDialog]]" 
+                                     label="[[actionLabelDel]]" 
+                                     chroming='{{actionButtonChroming}}'
+                                     disabled="[[actionDisabledDel]]" >
                                      <span slot='endIcon' class="oj-ux-ico-avatar"></span>
                           </oj-button>
                           <oj-button id="okButton" class="button-red" on-oj-action="[[cancelUserDialog]]">Cancel <span slot='endIcon' class="oj-ux-ico-cancel"></span></oj-button>
@@ -100,15 +140,21 @@
                   </oj-input-search>
               </div>
       </div>
+      <div id='tableContainer' class="oj-flex-item oj-web-padding">
         <oj-table id='table' 
                 aria-label='Users Table' 
                 data='[[dataprovider]]'
                 dnd='{"reorder": {"columns": "enabled"}}'
+                columns-default.sortable='disabled' 
                 scroll-policy='loadMoreOnScroll' 
                 scroll-policy-options='{"fetchSize": 10}' 
                 columns='[[tableColumns]]'
-                class='table-users-container oj-bg-body mt-2'>
+                class='table-users-container oj-bg-body mt-2'
+                selection-mode.row='single'
+                first-selected-row='{{firstSelected}}'
+                on-first-selected-row-changed="[[firstSelectedRowChangedListener]]">
         </oj-table>
+      </div>
     </div>
   </div>
 </body>

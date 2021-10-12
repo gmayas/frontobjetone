@@ -2,7 +2,7 @@
 define(["services/users.service", "../accUtils", "require", "exports", "knockout", "ojs/ojcore", "ojs/ojbootstrap",
   "ojs/ojarraydataprovider", "ojs/ojbufferingdataprovider", "ojs/ojlistdataproviderview", "ojs/ojdataprovider", "ojs/ojanimation", 
   "ojs/ojtable", "ojs/ojknockout", "ojs/ojinputtext", "ojs/ojbutton", "ojs/ojdialog", "ojs/ojformlayout", "ojs/ojlabelvalue", 
-  "ojs/ojinputsearch", "ojs/ojvalidationgroup", "ojs/ojrefresher", "ojs/ojpagingcontrol"],
+  "ojs/ojinputsearch", "ojs/ojvalidationgroup", "ojs/ojrefresher", "ojs/ojpagingcontrol", "ojs/ojmessages"],
   function (usersServices, accUtils, require, exports, ko, oj, ojbootstrap_1,
     ArrayDataProvider, BufferingDataProvider, ListDataProviderView, ojdataprovider_1, AnimationUtils) {
     function UsersViewModel() {
@@ -31,6 +31,7 @@ define(["services/users.service", "../accUtils", "require", "exports", "knockout
       this.editRow = ko.observable({ rowKey: null });
       this.firstSelected = ko.observable();
       this.groupValid = ko.observable();
+      this.editedData = ko.observable("");
       
       this.disableIdUser = ko.observable(true);
       this.disableNameUser = ko.observable(false);
@@ -44,6 +45,9 @@ define(["services/users.service", "../accUtils", "require", "exports", "knockout
       this.actionLabelDel = ko.observable('Delete user'); 
       this.actionStyleDel = ko.observable("button-red"); //null
       this.actionDisabledDel = ko.observable(true);    
+      this.actionUpdateOrDelete = ko.observable(true); //true: update, false: delete    
+      this.disableMessageDelete = ko.observable(true);
+      this.messagesDataprovider = ko.observable([{}]);  
       //
       // 
       self.userArray = ko.observableArray([]);
@@ -64,8 +68,7 @@ define(["services/users.service", "../accUtils", "require", "exports", "knockout
         let response = await usersServices.getUsers();
         let dataReturn = await response.json();
         self.userArray(dataReturn.data);
-      }
-
+      };
       // Función que retorna la informacion de creacion usuario 
       const createUser = async (bodyIn) => {
         try {
@@ -77,8 +80,7 @@ define(["services/users.service", "../accUtils", "require", "exports", "knockout
         } catch (e) {
             console.log('Error respose: ', e)
        }
-      }
-
+      };
       // Función que retorna la informacion de modificación usuario 
       // Solo mofica el password del suario
       const modifyPassword = async (id_user, bodyIn) => {
@@ -92,8 +94,7 @@ define(["services/users.service", "../accUtils", "require", "exports", "knockout
           } catch (e) {      
             console.log('Error respose: ', e)
         }
-      }
-
+      };
       // Función asincrona para eliminar la informacion completa del usuario
       const deleteUser = async (id_user, bodyIn) => {
           try {
@@ -106,8 +107,7 @@ define(["services/users.service", "../accUtils", "require", "exports", "knockout
           } catch (e) {
                  console.log('Error respose: ', e)
         }
-      }
-     
+      };
       //
       this.handleValueChanged = () => {
         this.filter(document.getElementById("filter").rawValue);
@@ -163,7 +163,9 @@ define(["services/users.service", "../accUtils", "require", "exports", "knockout
       self.tableColumns = [{ "headerText": "User Id", renderer: this.highlightingCellRenderer },
       { "headerText": "Name", renderer: this.highlightingCellRenderer },
       { "headerText": "Email", renderer: this.highlightingCellRenderer },
-      { "headerText": "Password", renderer: this.highlightingCellRenderer } ];
+      { "headerText": "Password", renderer: this.highlightingCellRenderer },
+      { "headerText": "Action", "sortable":"disable", "width": "10rem", "headerClassName": "oj-helper-text-align-center",
+        "className":"oj-helper-text-align-center"} ];
       //  
       this.newUserData = () => {
 
@@ -184,10 +186,16 @@ define(["services/users.service", "../accUtils", "require", "exports", "knockout
         this.inputNameUser(null);
         this.inputEmailUser(null);
         this.inputPassword(null);
-      };
 
-       // Return true if the Remove and Update buttons should be disabled
-       this.disableRemoveUpdate = ko.computed(() => {
+        this.messages =  [{
+          severity: "confirmation",
+          summary: "You add a new user",
+          detail: ""          
+        }];  
+        this.messagesDataprovider(this.messages);  
+      };
+      // Return true if the Remove and Update buttons should be disabled
+      this.disableRemoveUpdate = ko.computed(() => {
         const firstSelected = this.firstSelected();
         return (!firstSelected ||
           !firstSelected.key ||
@@ -240,7 +248,7 @@ define(["services/users.service", "../accUtils", "require", "exports", "knockout
         document.getElementById("modalDialog1").close();
         this.newUserData();
       };
-
+      //
       this.valueForm = ko.computed(() => {
         let dataVal = ((!this.inputNameUser()
                         || !this.inputEmailUser()
@@ -248,7 +256,7 @@ define(["services/users.service", "../accUtils", "require", "exports", "knockout
                         ) || this.groupValid() === "invalidShown")
         return dataVal;
       });
-
+      //
       this.validateEmail = (email) => {
         if (/^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i.test(email)) {
           return true;
@@ -256,7 +264,7 @@ define(["services/users.service", "../accUtils", "require", "exports", "knockout
           return false;
         }
       };
-
+      //
       this.okUserDialog = (event) => {
         const error = [{ summary: "summary", detail: "Is required", severity: "error" }];  
         const warningEmail = [{ summary: "summary", detail: "Basic email format: user@email.com", severity: "warning" }];
@@ -354,39 +362,82 @@ define(["services/users.service", "../accUtils", "require", "exports", "knockout
       });
       //
       this.handleUpdate = (event, context) => {
-        this.newUserData();
-        document.getElementById("modalDialog1").open();
+        console.log('context:', context);
+        this.actionUpdateOrDelete(true); //true: update, false: delete  
+        this.messages =  [{
+          severity: "info",
+          summary: "Are you completely sure to modify this user?",
+          detail: ""          
+        }];  
+        this.messagesDataprovider(this.messages);   
+        this.editRow({ rowKey: context.key });
       };
+      //
+      this.handleDelete = (event, context) => {
+        console.log('context:', context);
+        this.actionUpdateOrDelete(false); //true: update, false: delete  
+        this.messages =  [{
+          severity: "warning",
+          summary: "Are you completely sure to delete this user?", 
+          detail: ""                 
+        }];  
+        this.messagesDataprovider(this.messages); 
+        this.editRow({ rowKey: context.key });
+      };
+      //
       this.handleDone = () => {
         this.editRow({ rowKey: null });
       };
+      //
       this.handleCancel = () => {
         this.cancelEdit = true;
         this.editRow({ rowKey: null });
       };
       //
       this.beforeRowEditListener = (event) => {
-        this.cancelEdit = false;
         const rowContext = event.detail.rowContext;
         this.originalData = Object.assign({}, rowContext.item.data);
         this.rowData = Object.assign({}, rowContext.item.data);
+        console.log(' this.rowData:',  this.rowData);
+        const user = this.rowData;
+        this.inputIdUser(user.id_user);
+        this.inputNameUser(user.name_user);
+        this.inputEmailUser(user.email_user);
+        this.inputPassword(user.password_user);
+        
+        
+        if (this.actionUpdateOrDelete()) { //true: update, false: delete    )
+          const infoPasswordUser = [{ summary: "summary", detail: "You can only modify the password", severity: "info" }];
+          this.messagePasswordUser(infoPasswordUser);
+          this.disableIdUser(true);
+          this.disableNameUser(true);
+          this.disableEmailUser(true);
+          this.disablePasswordUser(false);
+          this.actionButtonChroming('danger');
+          this.actionLabelCU('Modify user'); 
+          this.actionStyleCU("button-orange"); //null
+          this.actionDisabledCU(false);
+          this.actionLabelDel('Delete user'); 
+          this.actionStyleDel("button-red"); //null
+          this.actionDisabledDel(true);
+        } else {
+          const delMessage = [{ summary: "summary", detail: "Are you completely sure to delete this user?", severity: "error" }]
+          this.messagePasswordUser(delMessage);
+          this.disableIdUser(true);
+          this.disableNameUser(true);
+          this.disableEmailUser(true);
+          this.disablePasswordUser(true);
+          this.actionButtonChroming('danger');
+          this.actionLabelCU('Modify user'); 
+          this.actionStyleCU("button-green"); //null
+          this.actionDisabledCU(true);
+          this.actionLabelDel('Delete user'); 
+          this.actionStyleDel("button-red"); //null
+          this.actionDisabledDel(false);
+        }; 
+        document.getElementById("modalDialog1").open();
       };
       //
-      this.beforeRowEditEndListener = (event) => {
-        this.editedData("");
-        const detail = event.detail;
-        if (!detail.cancelEdit && !this.cancelEdit) {
-            if (this.hasValidationErrorInRow(document.getElementById("table"))) {
-                event.preventDefault();
-            }
-            else {
-                if (this.isRowDataUpdated()) {
-                    const key = detail.rowContext.item.data.DepartmentId;
-                    this.submitRow(key);
-                }
-            }
-        }
-      };
       //      
       getUsers();
       //

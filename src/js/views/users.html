@@ -38,11 +38,15 @@
                         <h1 id="dialogTitleId" class="oj-dialog-title">Data user 
                            <span role="img" class="oj-ux-ico-avatar"></span>
                         </h1>
+                        <div id="inlineMessages">
+                                  <oj-messages messages="[[messagesDataprovider]]"
+                                               display-options.category="none"></oj-messages>
+                          </div>
                      </div>
                      <div slot="body" class="mt-4">
                       <oj-validation-group valid="{{groupValid}}">
                         <oj-form-layout id="myform"  class="oj-formlayout-full-width">
-                                                  <oj-input-text id="idUser" 
+                                                <oj-input-text id="idUser" 
                                                               label-hint="[[labelId]]"
                                                                placeholder='{{"Id User"}}' 
                                                                value='{{inputIdUser}}'
@@ -69,7 +73,7 @@
                                                                messages-custom="{{messagePasswordUser}}" 
                                                                required="[[required]]"
                                                                mask-icon="visible"></oj-input-password>
-                            </oj-form-layout>
+                          </oj-form-layout>
                       </oj-validation-group>
                       <oj-dialog id="innerDialog" modality="modal">
                         <div slot="header">
@@ -104,6 +108,7 @@
                       </oj-dialog>
                     </div>
                     <div slot="footer" class="oj-dialog-footer-separator">
+                          
                           <oj-button id="okButton" 
                                      :class='{{actionStyleCU}}' 
                                      on-oj-action="[[okUserDialog]]" 
@@ -152,7 +157,33 @@
                 class='table-users-container oj-bg-body mt-2'
                 selection-mode.row='single'
                 first-selected-row='{{firstSelected}}'
-                on-first-selected-row-changed="[[firstSelectedRowChangedListener]]">
+                edit-mode='rowEdit'
+                edit-row='{{editRow}}' 
+                on-oj-before-row-edit='[[beforeRowEditListener]]'>
+                <template slot='rowTemplate' data-oj-as='row'>
+                <tr>
+                  <td>
+                    <oj-bind-text value="[[row.item.data.id_user]]"></oj-bind-text>
+                  </td>
+                  <td>
+                    <oj-bind-text value="[[row.item.data.name_user]]"></oj-bind-text>
+                  </td>
+                  <td>
+                    <oj-bind-text value="[[row.item.data.email_user]]"></oj-bind-text>
+                  </td>
+                  <td>
+                    <oj-bind-text value="[[row.item.data.password_user]]"></oj-bind-text>
+                  </td>
+                  <td class="oj-sm-padding-0-vertical">
+                    <oj-button display='icons'  class="button-orange" chroming='danger' on-oj-action='[[handleUpdate]]'>
+                      <span slot='startIcon' class="oj-ux-ico-edit"></span>Edit
+                    </oj-button>
+                    <oj-button display='icons'  class="button-red" chroming='danger' on-oj-action='[[handleDelete]]'>
+                      <span slot='startIcon' class="oj-ux-ico-trash"></span>Delete
+                    </oj-button>
+                  </td>
+                </tr>
+              </template>
         </oj-table>
       </div>
     </div>

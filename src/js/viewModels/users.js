@@ -280,7 +280,7 @@ define(["services/users.service", "../accUtils", "require", "exports", "knockout
           if (!this.validateEmail(newData.email_user)){
               this.messageEmailUser(warningEmail); 
           } else {
-            //createUser, modifyPassword, deleteUser
+            //createUser, modifyPassword
             if (newData.id_user == 0) {
               createUser(newData);
             } else {

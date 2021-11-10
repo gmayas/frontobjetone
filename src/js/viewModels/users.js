@@ -6,6 +6,10 @@ define(["services/users.service", "../accUtils", "require", "exports", "knockout
   function (usersServices, accUtils, require, exports, ko, oj, ojbootstrap_1,
     ArrayDataProvider, BufferingDataProvider, ListDataProviderView, ojdataprovider_1, AnimationUtils) {
     function UsersViewModel() {
+       //
+       this.connected = () => {
+        document.title = "Users";
+      };
       //
       let self = this;
       this.filter = ko.observable("");
@@ -440,10 +444,7 @@ define(["services/users.service", "../accUtils", "require", "exports", "knockout
       //
       //      
       getUsers();
-      //
-      this.connected = () => {
-        document.title = "Users";
-      };
+     
     }
     //
     return UsersViewModel;

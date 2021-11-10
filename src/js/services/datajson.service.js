@@ -2,7 +2,7 @@ define([],
   function () {
 
     // URL de Api Rest
-    let restServerUrl = "http://localhost:3000/api/dataJson";
+    let restServerUrl = "http://appydexbackgm.herokuapp.com/api/dataJson";
     
     //
     const getDataJsonbyId = async (id) => {

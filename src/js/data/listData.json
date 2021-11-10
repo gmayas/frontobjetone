@@ -1,0 +1,7 @@
+[
+    { "value": "IE", "label": "Internet Explorer" },
+    { "value": "FF", "label": "Firefox" },
+    { "value": "CH", "label": "Chrome" },
+    { "value": "OP", "label": "Opera" },
+    { "value": "SA", "label": "Safari" }
+]

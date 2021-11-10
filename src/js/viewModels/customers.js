@@ -18,7 +18,7 @@ define(["require", "exports", "knockout", "ojs/ojbootstrap", "ojs/ojarraydatapro
           let response = await datajsonServices.createDataJson(deptArray);
           let dataReturn = await response.json();
           setTimeout( async () => {
-            const id = 66;
+            const id = 77;
             let getResponse = await datajsonServices.getDataJsonbyId(id);
             let dataJsonReturn = await getResponse.json();
             localStorage.setItem('deptArray', JSON.stringify(dataJsonReturn.data[0].array_json));

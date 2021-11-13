@@ -8,7 +8,7 @@
 /*
  * Your about ViewModel code goes here
  */
-define(['../accUtils'],
+define(['accUtils'],
  function(accUtils) {
     function AboutViewModel() {
       // Below are a set of the ViewModel methods invoked by the oj-module component.

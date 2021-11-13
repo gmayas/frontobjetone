@@ -8,7 +8,7 @@ define(["require", "exports", "knockout", "ojs/ojbootstrap", "ojs/ojarraydatapro
       self.browsers =  ko.observableArray([]); 
       // 
       self.browsersDP = new ArrayDataProvider(self.browsers, {
-        keyAttributes: "value",
+        keyAttributes: "VALUE",
        });
       //
       const createUser = async () => {
